@@ -11,8 +11,7 @@
 <script>
 window.AT3_SETTINGS = {
 
-  /* Colours are now in the :root block in the <style> section below,
-     where the editor shows a colour square beside each hex code. */
+  /* Colours are in the :root block in the <style> section below. */
 
   /* ---- Fonts (any family from fonts.google.com) ---- */
   fonts: {
@@ -139,7 +138,7 @@ input[type=text]:focus,select:focus{outline:2px solid var(--accent);outline-offs
 .chips label:hover{border-color:var(--accent);background:var(--tint)}
 .chips input:checked + label{background:var(--accent);border-color:var(--accent);color:var(--banner-ink)}
 .chips label.sugg{border-color:var(--accent);border-style:dashed}
-.chips label.sugg::after{content:" · suggested";font-size:.72rem;color:var(--ink)}
+.chips label.sugg::after{content:" (suggested)";font-size:.72rem;color:var(--ink)}
 .chips input:checked + label.sugg::after{color:var(--banner-ink)}
 .check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;cursor:pointer}
 .check input{margin-top:3px;accent-color:var(--accent)}
@@ -224,7 +223,7 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
       <section class="card access" id="overviewCard">
         <h2>Overview alignment</h2>
-        <label class="check"><input type="checkbox" id="ovissue"> <span><b>The overview has significant alignment issues</b><br><span class="desc">A misaligned overview makes even a well-designed resource inappropriate. Ticking this changes the opening to "not appropriately aligned", adds an "Overview alignment" paragraph before Criterion 1, and adjusts the overall comment to match. You still set the marks: issues like these usually place Criterion 1 in Pre-structural (2&ndash;0) or the bottom of Uni-structural (5&ndash;3).</span></span></label>
+        <label class="check"><input type="checkbox" id="ovissue"> <span><b>The overview has significant alignment issues</b><br><span class="desc">Use this when the stage, outcome or content point is wrong, irrelevant or incomplete. The comment will explain that a resource can't be appropriate if it isn't aligned to the syllabus. Marks are still up to you, but these issues usually place Criterion 1 in Pre-structural (2&ndash;0) or the bottom of Uni-structural (5&ndash;3).</span></span></label>
         <div class="extra" data-show="ovissue"><span class="q">What's wrong with it? (pick any)</span>
           <div class="chips" data-group="ovissues"></div>
           <input type="text" id="ovdetail" placeholder="Details, as a full sentence (optional), e.g. The outcome listed is from the Science syllabus, not Geography."></div>
@@ -271,7 +270,7 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
         </div>
       </div>
       <div class="note" id="copyNote">Green highlighted words are gaps still to fill.</div>
-      <div class="note"><span class="autotext-key">Grey highlighted words</span> in the first paragraph (the overall resource and syllabus alignment descriptions) are generated automatically from the bands and marks you choose. Tutors: if you want different wording, click in the comment and edit it directly. Make any manual edits last, because changing a selection on the left rebuilds the comment.</div>
+      <div class="note"><span class="autotext-key">Grey highlighted words</span> in the first paragraph are filled in from the bands and marks you choose. To change any wording, click in the comment and edit it. Do this last, as changing anything on the left rebuilds the comment.</div>
     </aside>
   </div>
 </div>
@@ -372,7 +371,7 @@ $("ov").innerHTML = [["top","Top"],["middle","Middle"],["low","Low"],["fail","Di
   `<input type="radio" name="ov" id="ov-${v}" value="${v}"><label for="ov-${v}"><span style="font-size:.88rem;color:inherit;font-weight:600">${t}</span></label>`).join("");
 document.querySelector('[data-group="improve"]').innerHTML = chipsHtml("improve", IMPROVE.map(x=>x[1]));
 
-/* Overview alignment issues: [wording used in the comment, short label shown to tutors] */
+/* Overview issues: [comment wording, tutor label] */
 const OV_ISSUES = [
   [`the stage selected is not ${S.stage || "Stage 4"}`, "Wrong stage selected"],
   ["the outcome listed is from a syllabus that is not relevant to the chosen KLA", "Outcome from an irrelevant syllabus"],
@@ -388,7 +387,7 @@ const val = id => ($(id).value || "").trim();
 const band = k => (document.querySelector(`input[name="${k}"]:checked`)||{}).value || "";
 const mark = k => { const v = (document.querySelector(`input[name="${k}m"]:checked`)||{}).value; return v===undefined ? null : +v; };
 const picks = g => [...document.querySelectorAll(`input[name="${g}"]:checked`)].map(i => i.value);
-// Joins options as "a, b and c"; adds a comma before "and" when an option already contains a comma, so it reads clearly.
+// a, b and c (comma before "and" if an option has a comma in it)
 const list = a => a.length < 2 ? (a[0]||"") : a.slice(0,-1).join(", ") + (a.some(x => x.includes(",")) ? ", and " : " and ") + a[a.length-1];
 const an = w => /^[aeiou]/i.test(w) ? "an" : "a";
 const GAP = s => `\u0000${s}\u0001`;
@@ -397,9 +396,9 @@ const pos = (b, m) => { const r = RANGE[b]; if (m===null) return "mid"; return m
 
 /* ---------- Wording ---------- */
 function c1Text(b, m, kla){
-  if (b==="10") return `Your resource shows a transferable, expert design application. It applies the digital design principles precisely at the points where they add the most value to the discipline content, such as ${or(val("c1ex"),"example from their resource")}, and this is evident in the finished resource itself. It also structures the resource so the same approach could be applied to other syllabus content in ${kla}.`;
-  if (b==="9-8") return `Your resource shows discipline-driven design coherence. It integrates the chosen digital design principles within the learning activity so they visibly shape what learners do, and the resource expands curriculum learning opportunities within the syllabus content. To move into the Extended Abstract band, structure the resource so the same approach could be applied to other syllabus content in ${kla}.`;
-  if (b==="7-6") return `Your resource shows multiple aligned design applications. It applies several digital design principles, such as ${or(list(picks("c1principles")),"principles")}, that connect to the discipline content and help to expand curriculum learning opportunities, although these connections are not consistently sustained across the whole resource. To move into the Relational band, make sure the principles visibly shape what learners do throughout the whole activity.`;
+  if (b==="10") return `Your resource shows a transferable, expert design application. You have used the digital design principles where they make the biggest difference to the discipline content, such as ${or(val("c1ex"),"example from their resource")}, and this comes through clearly in the finished resource. The resource is also set up so the same approach could be used with other syllabus content in ${kla}.`;
+  if (b==="9-8") return `Your resource shows discipline-driven design coherence. The digital design principles you chose are built into the learning activity and clearly shape what learners do, and the resource opens up further learning opportunities within the syllabus content. To move into the Extended Abstract band, structure the resource so the same approach could be applied to other syllabus content in ${kla}.`;
+  if (b==="7-6") return `Your resource shows multiple aligned design applications. It applies several digital design principles, such as ${or(list(picks("c1principles")),"principles")}, that connect to the discipline content and help to extend learning opportunities, although these connections are not carried through the whole resource. To move into the Relational band, make sure the principles clearly shape what learners do throughout the whole activity.`;
   if (b==="5-3") {
     const iss = or(list(picks("c1issues")),"what wasn't clear");
     const p = pos(b,m);
@@ -408,25 +407,25 @@ function c1Text(b, m, kla){
       : `Your resource shows some discipline-specific design application. It applies a digital design principle that is relevant to the chosen syllabus content, although the application is limited and ${iss}.`;
     return lead + ` To move into the Multi-structural band, apply several digital design principles that clearly connect to the discipline content, and check that your overview names the topic, outcome and content point and that these align.`;
   }
-  if (b==="2-0") return `Your resource has a missing or mismatched design/discipline focus. It ${or(list(picks("c1missing")),"why it sits here")}. It is important to read the instructions and the rubric carefully so that your resource is clearly aligned to the syllabus, and to support your learning and synthesis within the course.`;
+  if (b==="2-0") return `Your resource has a missing or mismatched design/discipline focus. It ${or(list(picks("c1missing")),"why it sits here")}. It is important to read the instructions and the rubric carefully so that your resource is clearly aligned to the syllabus, as this also supports your learning across the course.`;
 }
 function c2Text(b, m, tech){
   const samr = $("samr").checked;
-  if (b==="10") return `Your resource demonstrates a transformative digital learning design. It engineers a digitally enabled learning experience that creates opportunities not otherwise available, through ${or(list(picks("c2affordances")),"opportunities")}, and your design choices make the technology visibly serve the targeted digital design principle rather than sit beside it.`;
-  if (b==="9-8") return `Your resource redefines learner action through technology. It reshapes what learners do through digital affordances, so the core task would not be feasible in the same form on paper, and ${tech} clearly fits the content, learners and classroom constraints. To move into the Extended Abstract band, think about how the technology could create learning opportunities that would not otherwise be available, such as an authentic audience, iterative feedback and revision, collaboration, or real or live data.`;
-  if (b==="7-6") return `Your resource adds functional digital enhancements, such as ${or(list(picks("c2features")),"features")}, that improve learning and usability. However, the underlying learner task remains broadly similar to a paper-based version${samr?", which places it at the augmentation level of the SAMR model":""}. To move into the Relational band, think about how the technology could reshape what learners actually do, so the core task would not be feasible in the same form on paper${samr?" (the modification or redefinition levels)":""}.`;
+  if (b==="10") return `Your resource demonstrates a transformative digital learning design. It uses technology to create learning opportunities that would not otherwise be possible, through ${or(list(picks("c2affordances")),"opportunities")}, and the technology clearly serves the digital design principle you targeted rather than being an add-on.`;
+  if (b==="9-8") return `Your resource redefines learner action through technology. The technology changes what learners actually do, so the core task could not be done the same way on paper, and ${tech} is a good fit for the content, the learners and the classroom. To move into the Extended Abstract band, think about how the technology could create learning opportunities that would not otherwise be available, such as an authentic audience, iterative feedback and revision, collaboration, or real or live data.`;
+  if (b==="7-6") return `Your resource adds functional digital enhancements, such as ${or(list(picks("c2features")),"features")}, that improve learning and usability. However, the underlying learner task remains broadly similar to a paper-based version${samr?", which places it at the augmentation level of the SAMR model":""}. To move into the Relational band, think about how the technology could reshape what learners actually do, so the core task could not be done the same way on paper${samr?" (the modification or redefinition levels)":""}.`;
   if (b==="5-3") {
     const p = pos(b,m);
-    const lead = p==="top" ? `Your resource provides a digital version of the resource that reliably delivers the activity and supports completion. However, the technology does not yet offer a clear learning benefit beyond convenience, and the underlying learner task remains broadly similar to a paper-based version.`
+    const lead = p==="top" ? `Your resource works reliably as a digital version of the activity and helps students to complete it. However, the technology does not yet offer a clear learning benefit beyond convenience, and the underlying learner task remains broadly similar to a paper-based version.`
       : p==="bottom" ? `Your resource largely moves a paper-equivalent task online. The technology adds little beyond convenience, and the underlying learner task remains broadly similar to a paper-based version.`
-      : `Your resource provides a digital version of the resource, but the technology offers little clear learning benefit beyond convenience, and the underlying learner task remains broadly similar to a paper-based version.`;
+      : `Your resource provides a digital version of the activity, but the technology offers little clear learning benefit beyond convenience, and the underlying learner task remains broadly similar to a paper-based version.`;
     return lead + (samr?` In SAMR terms, it currently sits at the substitution or lower augmentation level.`:"") + ` To move into the Multi-structural band, add purposeful features such as immediate feedback, interactivity or self-pacing that improve learning, not just access.`;
   }
   if (b==="2-0") return `Your resource uses technology in a way that ${val("c2bad")}, so there is no clear reason for the resource to be digital based on what the learner is asked to do. I would encourage you to read the instructions and the rubric carefully to make sure the technology you choose is meaningful to the learning.`;
 }
 function c3Text(b, m){
-  if (b==="10") return `Your resource is a calibrated learning design for specific learners. It optimises cognitive load and accessibility through deliberate trade-offs, including what is left out, so it would hold up in a real classroom for the intended learners and devices. The design, content and language are precisely pitched to the age and stage of your target audience. Well done.`;
-  if (b==="9-8") return `Your resource has a coherent, accessible design for novices. It applies multimedia and cognitive-load principles consistently, such as ${or(list(picks("c3principles")),"principles")}, so learners can navigate independently and focus on the intended learning. The content and language are consistently age and stage appropriate. To move into the Extended Abstract band, make more deliberate trade-offs (including what you leave out) so every element is precisely pitched to your intended learners.`;
+  if (b==="10") return `Your resource is a calibrated learning design for specific learners. Cognitive load and accessibility have been carefully managed, including thoughtful decisions about what to leave out, so it would work well in a real classroom with the intended learners and devices. The design, content and language are precisely pitched to the age and stage of your target audience. Well done.`;
+  if (b==="9-8") return `Your resource has a coherent, accessible design for novices. It applies multimedia and cognitive-load principles consistently, such as ${or(list(picks("c3principles")),"principles")}, so learners can navigate independently and focus on the intended learning. The content and language are consistently age and stage appropriate. To move into the Extended Abstract band, make more deliberate choices about what to include and what to leave out, so every element suits your intended learners.`;
   if (b==="7-6") return `Your resource applies several learning-focused design strategies, such as ${or(list(picks("c3strategies")),"strategies")}, that generally support understanding, although their application is uneven across the resource. The design, content and language are generally age and stage appropriate${$("c3slip").checked?", even if the pitch slips in places":""}. To move into the Relational band, apply multimedia and cognitive-load principles more consistently so learners can navigate independently.`;
   if (b==="5-3") {
     const ob = or(list(picks("c3obstacles")),"obstacles");
@@ -441,7 +440,7 @@ function c3Text(b, m){
     const f = picks("c3fail");
     const s = [];
     if (f.includes("mismatch")) s.push(`The content and language are ${val("c3mismatch")} for the age and stage of the target audience, so it would not be usable with those learners.`);
-    if (f.includes("overload")) s.push(`It imposes a cognitive load that prevents learners from engaging with the content.`);
+    if (f.includes("overload")) s.push(`There is too much for learners to process at once, which stops them from engaging with the content.`);
     return `Your resource is unworkable for the intended learners. ` + (s.length ? s.join(" ") : GAP("why it's unworkable"));
   }
 }
@@ -476,7 +475,7 @@ function compose(){
   const qText = q ? AUTO(an(q)+" "+q) : "a "+GAP("overall resource");
   let open;
   if (ovIssue) {
-    // The overview is misaligned, so the opening says so whatever the design quality.
+    // misaligned overview
     const strong = q==="well thought out" || q==="appropriate";
     open = `Your resource is ${qText} student-facing digital resource in its design${strong ? "; however, it is" : ", and it is"} ${AUTO("not appropriately aligned")} to the ${kla} ${STAGE} Syllabus. `;
   } else {
@@ -490,12 +489,11 @@ function compose(){
     let t = `Unfortunately, your overview has significant alignment issues, as ${or(list(picks("ovissues")),"overview issues")}.`;
     const d = val("ovdetail");
     if (d) t += " " + d.replace(/([^.!?])$/, "$1.");
-    t += ` This matters because the overview is what anchors your resource to the syllabus. Even a well-designed resource is not appropriate for learners if it does not align with the outcome and content it is meant to teach. To fix this, make sure the stage, outcome and content point are taken directly from the current ${kla} ${STAGE} Syllabus and that they belong together. The feedback on each criterion below should be read with this in mind.`;
+    t += ` The overview is what connects your resource to the syllabus, so even a well-designed resource is not appropriate for learners if it does not align with the outcome and content it is meant to teach. Make sure the stage, outcome and content point are taken directly from the current ${kla} ${STAGE} Syllabus and that they belong together. Please keep this in mind when reading the feedback on each criterion below.`;
     blocks.push({head:"Overview alignment", text:t});
   }
 
-  /* Linking words so each criterion paragraph follows on from the one before.
-     The first word "Your" of each criterion's wording becomes "your" after the link. */
+  // linking words at the start of each criterion
   const LINKS = {
     c1: ovIssue ? "Setting the overview aside, " : "",
     c2: "In terms of technology integration, ",
