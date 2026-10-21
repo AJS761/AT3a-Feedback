@@ -4,33 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EDUC2151 AT3 Part A Feedback Builder</title>
-<!-- =====================================================================
-     SETTINGS: change the values below to customise the tool.
-     Keep the quote marks and commas. Colours are in the :root block of the style section below.
-     ===================================================================== -->
+<!-- Settings: change the values below. Keep the quote marks and commas. -->
 <script>
 window.AT3_SETTINGS = {
 
-  /* Colours are in the :root block in the <style> section below. */
+  // colours are in :root in the style section
 
-  /* ---- Fonts (any family from fonts.google.com) ---- */
-  fonts: {
-    headings: "Tahoma",
-    body:     "Tahoma",
-    labels:   "Tahoma"    // small capitals labels and marks
-  },
   textSize: 15,                  // main text size in pixels
 
-  /* ---- Page text ---- */
+  // page text
   showHeader: true,              // false hides the title block (e.g. if your Wix page has its own)
   title:      "EDUC2151 AT3 Part A Tutor Feedback Builder",
   intro:      "Choose a band and mark for each criterion and tick what applies. The comment builds from the set wording, so copy it into Canvas and start the next student.",
 
-  /* ---- Words used inside the comments ---- */
+  // words used in the comments
   stage: "Stage 4",              // "...to the History Stage 4 Syllabus"
   lms:   "Canvas",               // where students submit and where comments go
 
-  /* ---- Dropdown and tick-box options ---- */
+  // dropdown and tick-box options
   klaList:    ["Aboriginal Studies", "Chinese", "Communication Technology", "Design Innovation Technology", "Drama", "Engineering Technology", "English", "Food Technology", "French", "Geography", "History", "Industrial Technology", "Japanese", "Mathematics", "PDHPE", "Science"],
   suitability:  ["strong", "great", "appropriate", "okay", "not appropriate"],
   callItA:      ["tool", "app", "platform", "technology"],
@@ -52,11 +43,10 @@ window.AT3_SETTINGS = {
   // "Overall resource" is filled in from the total mark using these cut-offs (out of 30)
   overallCutoffs: { wellThoughtOut: 25, appropriate: 18, adequate: 12 }
 };
-/* The comment wording itself is further down, in c1Text, c2Text, c3Text and OV. */
+// comment wording is further down (c1Text, c2Text, c3Text, OV)
 </script>
-<!-- ===================== END OF SETTINGS ===================== -->
+<!-- end of settings -->
 <style>
-/* COLOURS: click a square beside a hex code to open the colour picker. */
 :root{
   --bg:#e8ffe3;            /* page background */
   --panel:#ffffff;         /* panels and input boxes */
@@ -276,12 +266,10 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 </div>
 
 <script>
-/* ---------- Apply settings ---------- */
+// apply settings
 const S = window.AT3_SETTINGS || {};
 (function applySettings(){
-  const f = S.fonts || {};
   const root = document.documentElement.style;
-  /* All fonts are fixed to Tahoma (set in :root); settings.fonts is ignored. */
   if (S.textSize) root.setProperty("--size", S.textSize + "px");
   const h = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t || ""; };
   h("hEyebrow", S.smallLabel); h("hTitle", S.title); h("hIntro", S.intro);
@@ -299,7 +287,7 @@ const S = window.AT3_SETTINGS || {};
 const STAGE = S.stage || "Stage 4", LMS = S.lms || "Canvas";
 const CUT = Object.assign({wellThoughtOut:25, appropriate:18, adequate:12}, S.overallCutoffs || {});
 
-/* ---------- Rubric ---------- */
+// rubric
 const SOLO = {"10":"Extended Abstract","9-8":"Relational","7-6":"Multi-structural","5-3":"Uni-structural","2-0":"Pre-structural"};
 const RANGE = {"10":[10],"9-8":[9,8],"7-6":[7,6],"5-3":[5,4,3],"2-0":[2,1,0]};
 const BAND_ORDER = ["10","9-8","7-6","5-3","2-0"];
@@ -322,7 +310,7 @@ const CRIT = [
    extras:{
      "10":[{type:"chips",g:"c2affordances",q:"Opportunities it creates (pick any)",opts:["an authentic audience","iterative feedback and revision","collaboration","real or live data","variable manipulation"]}],
      "7-6":[{type:"chips",g:"c2features",q:"Features it adds (pick any)",opts:["immediate feedback","interactivity","self-pacing","audio-visual supports","accessibility functions"]}],
-     "2-0":[{type:"select",id:"c2bad",q:"The technology…",opts:[["is incidental to the learning","is incidental to the learning"],["undermines the task","undermines the task"]]}]
+     "2-0":[{type:"select",id:"c2bad",q:"The technology",opts:[["is incidental to the learning","is incidental to the learning"],["undermines the task","undermines the task"]]}]
    }},
  { id:"c3", title:"Design for learning", tag:"Criterion 3",
    short:{"10":"Calibrated learning design for specific learners","9-8":"Coherent, accessible design for novices","7-6":"Multiple design supports applied","5-3":"Usable to varying degrees","2-0":"Inaccessible or unworkable resource"},
@@ -334,13 +322,13 @@ const CRIT = [
      "5-3":[{type:"chips",g:"c3obstacles",q:"Obstacles (pick any)",opts:["unclear sequencing","heavy or poorly pitched text","a distracting layout","gaps in accessibility"]},
             {type:"select",id:"c3pitch",q:"Content and language for the age and stage",opts:[["well","Well pitched"],["not","Not well pitched"]]}],
      "2-0":[{type:"chips",g:"c3fail",q:"Why it's unworkable (pick any)",opts:["mismatch","overload"],labels:["Language or stage badly mismatched","Cognitive overload"]},
-            {type:"select",id:"c3mismatch",q:"If mismatched, the content is…",opts:[["far too simple","far too simple"],["far too advanced","far too advanced"],["tonally inappropriate","tonally inappropriate"]]}]
+            {type:"select",id:"c3mismatch",q:"If mismatched, the content is",opts:[["far too simple","far too simple"],["far too advanced","far too advanced"],["tonally inappropriate","tonally inappropriate"]]}]
    }}
 ];
 
 const IMPROVE = S.improvements || [];
 
-/* ---------- Build the form ---------- */
+// build the form
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 function chipsHtml(g, opts, labels){
@@ -382,7 +370,7 @@ const OV_ISSUES = [
 ];
 document.querySelector('[data-group="ovissues"]').innerHTML = chipsHtml("ovissues", OV_ISSUES.map(x=>x[0]), OV_ISSUES.map(x=>x[1]));
 
-/* ---------- Helpers ---------- */
+// helpers
 const val = id => ($(id).value || "").trim();
 const band = k => (document.querySelector(`input[name="${k}"]:checked`)||{}).value || "";
 const mark = k => { const v = (document.querySelector(`input[name="${k}m"]:checked`)||{}).value; return v===undefined ? null : +v; };
@@ -394,7 +382,7 @@ const GAP = s => `\u0000${s}\u0001`;
 const or = (v, label) => v ? v : GAP(label);
 const pos = (b, m) => { const r = RANGE[b]; if (m===null) return "mid"; return m===r[0] ? "top" : m===r[r.length-1] ? "bottom" : "mid"; };
 
-/* ---------- Wording ---------- */
+// wording
 function c1Text(b, m, kla){
   if (b==="10") return `Your resource shows a transferable, expert design application. You have used the digital design principles where they make the biggest difference to the discipline content, such as ${or(val("c1ex"),"example from their resource")}, and this comes through clearly in the finished resource. The resource is also set up so the same approach could be used with other syllabus content in ${kla}.`;
   if (b==="9-8") return `Your resource shows discipline-driven design coherence. The digital design principles you chose are built into the learning activity and clearly shape what learners do, and the resource opens up further learning opportunities within the syllabus content. To move into the Extended Abstract band, structure the resource so the same approach could be applied to other syllabus content in ${kla}.`;
@@ -445,7 +433,7 @@ function c3Text(b, m){
   }
 }
 
-/* ---------- Auto-fill opening from marks ---------- */
+// auto-fill opening from marks
 function autoOpening(total, c1b){
   const aMap = {"10":"aligned","9-8":"aligned","7-6":"mostly aligned","5-3":"somewhat aligned","2-0":"not aligned"};
   return {
@@ -455,7 +443,7 @@ function autoOpening(total, c1b){
 }
 const AUTO = s => `\u0002${s}\u0003`;
 
-/* ---------- Compose ---------- */
+// compose
 function compose(){
   const noaccess = $("noaccess").checked;
   const name = or(val("name"),"name"), kla = or(val("kla"),"KLA"), tech = or(val("tech"),"technology/app");
@@ -526,7 +514,7 @@ function compose(){
   return {blocks, total, marks};
 }
 
-/* ---------- Render ---------- */
+// render
 let plain = "";
 function syncMarks(){
   // when a band is chosen with no valid mark, default to the top of its range
@@ -615,7 +603,7 @@ $("next").addEventListener("click", () => {
   render(); $("name").focus();
 });
 
-/* ---------- Example student + remembered settings ---------- */
+// remembered settings
 try {
   for (const id of ["onepara","headings","samr"]) { const v = localStorage.getItem("at3-"+id); if (v!==null) $(id).checked = v==="true"; }
   for (const id of ["tutor","signoff"]) { const v = localStorage.getItem("at3-"+id); if (v!==null) $(id).value = v; }
