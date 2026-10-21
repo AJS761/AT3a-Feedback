@@ -217,7 +217,8 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
             <option value="the marker was required to create an account, sign up or log in to view it">Needed an account, sign-up or login</option>
             <option value="it was not submitted in a form the marker could open">Not submitted in a form the marker can open</option>
             <option value="elements of the resource were unreadable or there was no workable pathway through it">Unreadable or no workable pathway</option>
-          </select></div>
+          </select>
+          <label class="check"><input type="checkbox" id="contacted" checked> <span>The student was emailed and asked to fix this, but didn't respond</span></label></div>
       </section>
       </div>
 
@@ -464,7 +465,7 @@ function compose(){
   blocks.push({text:`Hi ${name}, thank you for your submission.`});
 
   if (noaccess) {
-    blocks.push({text:`Unfortunately, your resource could not be accessed because ${val("accessReason")}. It was an important part of the task for the resource to be submitted through ${LMS} in a form the marker can open, without needing to create an account, sign up or log in. As a result, it could not be marked against the rubric and has been placed in the Pre-structural band for each criterion. I would encourage you to read the instructions thoroughly and, if you are ever unsure, reach out to your tutor for clarification.`});
+    blocks.push({text:`Unfortunately, your resource could not be accessed because ${val("accessReason")}.${$("contacted").checked ? " You were emailed and asked to correct this issue, but no response was received." : ""} It was an important part of the task for the resource to be submitted through ${LMS} in a form the marker can open, without needing to create an account, sign up or log in. As a result, it could not be marked against the rubric and has been placed in the Pre-structural band for each criterion. I would encourage you to read the instructions thoroughly and, if you are ever unsure, reach out to your tutor for clarification.`});
     return {blocks, total:0, marks};
   }
 
