@@ -264,10 +264,9 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
         <button type="button" class="primary" id="copy">Copy comment</button>
         <button type="button" id="next">New student</button>
         <div class="opts">
-          <!-- Criterion headings and marks are always on, so these two options are hidden -->
-          <label hidden><input type="checkbox" id="headings" checked> Criterion headings and marks</label>
+          <label><input type="checkbox" id="headings" checked> Criterion headings and marks</label>
           <label><input type="checkbox" id="samr" checked> Refer to SAMR</label>
-          <label hidden><input type="checkbox" id="onepara"> One paragraph</label>
+          <label><input type="checkbox" id="onepara"> One paragraph</label>
         </div>
       </div>
       <div class="note" id="copyNote">Green highlighted words are gaps still to fill.</div>
@@ -592,7 +591,7 @@ $("next").addEventListener("click", () => {
 
 /* ---------- Example student + remembered settings ---------- */
 try {
-  for (const id of ["samr"]) { const v = localStorage.getItem("at3-"+id); if (v!==null) $(id).checked = v==="true"; }
+  for (const id of ["onepara","headings","samr"]) { const v = localStorage.getItem("at3-"+id); if (v!==null) $(id).checked = v==="true"; }
   for (const id of ["tutor","signoff"]) { const v = localStorage.getItem("at3-"+id); if (v!==null) $(id).value = v; }
 } catch(e){}
 render();
