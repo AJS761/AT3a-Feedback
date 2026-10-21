@@ -388,7 +388,8 @@ const val = id => ($(id).value || "").trim();
 const band = k => (document.querySelector(`input[name="${k}"]:checked`)||{}).value || "";
 const mark = k => { const v = (document.querySelector(`input[name="${k}m"]:checked`)||{}).value; return v===undefined ? null : +v; };
 const picks = g => [...document.querySelectorAll(`input[name="${g}"]:checked`)].map(i => i.value);
-const list = a => a.length < 2 ? (a[0]||"") : a.slice(0,-1).join(", ") + " and " + a[a.length-1];
+// Joins options as "a, b and c"; adds a comma before "and" when an option already contains a comma, so it reads clearly.
+const list = a => a.length < 2 ? (a[0]||"") : a.slice(0,-1).join(", ") + (a.some(x => x.includes(",")) ? ", and " : " and ") + a[a.length-1];
 const an = w => /^[aeiou]/i.test(w) ? "an" : "a";
 const GAP = s => `\u0000${s}\u0001`;
 const or = (v, label) => v ? v : GAP(label);
@@ -514,13 +515,13 @@ function compose(){
   const impText = or(list(imp),"how they could improve");
   const OV = ovIssue ? {
     top: () => `Overall, once the alignment issues in your overview are addressed, this will be a well thought through and designed digital resource and a great example of how ICT resources can be used in ${kla}. Well done on the design!`,
-    middle: () => `Overall, you have done a good job with the design of your digital resource, but the alignment issues in your overview need to be addressed first. To push it to the next level, it would also have been good to see ${impText}. You were on the right track though, well done.`,
-    low: () => `Overall, although you were on the right track, correcting the alignment of your overview is the most important next step. Other areas you could expand upon to strengthen your response include ${impText}.`,
+    middle: () => `Overall, you have done a good job with the design of your digital resource, and it is built on some good foundational ideas, but the alignment issues in your overview need to be addressed first. To push it to the next level, it would also have been good to see ${impText}. With further refinement, this could be a strong, usable resource in the classroom.`,
+    low: () => `Overall, your resource has some good foundational ideas, but correcting the alignment of your overview is the most important next step. Other areas you could expand upon to strengthen it include ${impText}. With further refinement, this could be a usable resource in the classroom.`,
     fail: () => `Overall, due to ${or(val("failReason"),"reason")}, your resource didn't meet the standards set out in the rubric. I would encourage you to read the instructions thoroughly and, if you are ever unsure, reach out to your tutor for clarification.`
   } : {
     top: () => `Overall, this is a well thought through and designed digital resource and a great example of how ICT resources can be used in ${kla}. Well done!`,
-    middle: () => `Overall, you have done a good job with your digital resource. To push it to the next level, it would have been good to see ${impText}. You were on the right track though, well done.`,
-    low: () => `Overall, although you were on the right track, there are some areas you could expand upon to strengthen your response. These include ${impText}.`,
+    middle: () => `Overall, you have done a good job with your digital resource, and it is built on some good foundational ideas. To push it to the next level, it would have been good to see ${impText}. With further refinement, this could be a strong, usable resource in the classroom.`,
+    low: () => `Overall, your resource has some good foundational ideas, and there are some areas you could expand upon to strengthen it. These include ${impText}. With further refinement, this could be a usable resource in the classroom.`,
     fail: () => `Unfortunately, due to ${or(val("failReason"),"reason")}, your resource didn't meet the standards set out in the rubric. I would encourage you to read the instructions thoroughly and, if you are ever unsure, reach out to your tutor for clarification.`
   };
   blocks.push({text: ov ? OV[ov]() : GAP("overall comment")});
