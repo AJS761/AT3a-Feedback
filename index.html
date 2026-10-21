@@ -234,6 +234,7 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
       <section class="card">
         <h2>Overall comment</h2>
         <div class="bands" id="ov" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))"></div>
+        <p class="desc" id="ov-desc">Choose a band.</p>
         <div class="extra" data-show="ov:middle ov:low"><span class="q">Where they could improve (pick any; dashed ones match the lowest criterion)</span>
           <div class="chips" data-group="improve"></div>
           <input type="text" id="improveOther" placeholder="Anything else, in your own words (optional)"></div>
@@ -307,7 +308,7 @@ const BAND_ORDER = ["10","9-8","7-6","5-3","2-0"];
 const CRIT = [
  { id:"c1", title:"Discipline-specific application of digital design principles", tag:"Criterion 1",
    short:{"10":"Transferable, expert design application","9-8":"Discipline-driven design coherence","7-6":"Multiple aligned design applications","5-3":"Some discipline-specific design application","2-0":"Missing or mismatched design/discipline focus"},
-   guide:{"5-3":"Top of range: overview present and broadly accurate. Bottom: incomplete, imprecise, or syllabus elements sit awkwardly together."},
+   guide:{},
    extras:{
      "10":[{type:"text",id:"c1ex",q:"Example from their resource",ph:"e.g. the timeline that reveals sources as students sequence events"}],
      "7-6":[{type:"chips",g:"c1principles",q:"Principles applied (pick any)",opts:["modelling","prompts","scaffolds","interactivity"]}],
@@ -318,7 +319,7 @@ const CRIT = [
    }},
  { id:"c2", title:"Purposeful technology integration", tag:"Criterion 2",
    short:{"10":"Transformative digital learning design","9-8":"Redefined learner action through technology","7-6":"Functional digital enhancements","5-3":"Some digital value","2-0":"Unwarranted or obstructive technology use"},
-   guide:{"5-3":"Top of range: reliably delivers the activity and supports completion. Bottom: adds little beyond moving a paper-equivalent task online."},
+   guide:{},
    extras:{
      "10":[{type:"chips",g:"c2affordances",q:"Opportunities it creates (pick any)",opts:["an authentic audience","iterative feedback and revision","collaboration","real or live data","variable manipulation"]}],
      "7-6":[{type:"chips",g:"c2features",q:"Features it adds (pick any)",opts:["immediate feedback","interactivity","self-pacing","audio-visual supports","accessibility functions"]}],
@@ -326,7 +327,7 @@ const CRIT = [
    }},
  { id:"c3", title:"Design for learning", tag:"Criterion 3",
    short:{"10":"Calibrated learning design for specific learners","9-8":"Coherent, accessible design for novices","7-6":"Multiple design supports applied","5-3":"Usable to varying degrees","2-0":"Inaccessible or unworkable resource"},
-   guide:{"5-3":"Top of range: readable, navigable, reasonably well pitched, with at least one deliberate design choice. Bottom: recurring obstacles or mismatched pitch make learning noticeably harder."},
+   guide:{},
    extras:{
      "9-8":[{type:"chips",g:"c3principles",q:"Principles applied (pick any)",opts:["clear signalling","integrated text and visuals","sensible segmentation","an uncluttered layout"]}],
      "7-6":[{type:"chips",g:"c3strategies",q:"Strategies used (pick any)",opts:["chunking","headings","visuals paired with text","prompts","modelling","accessibility features"]},
@@ -553,6 +554,7 @@ function render(){
   document.querySelectorAll("[data-show]").forEach(el => {
     el.hidden = !el.dataset.show.split(" ").some(t => { if (t==="noaccess") return noaccess; if (t==="ovissue") return $("ovissue").checked; const [k,v] = t.split(":"); return band(k) === v; });
   });
+  $("ov-desc").hidden = !!band("ov");
   CRIT.forEach(c => { const b = band(c.id); $(c.id+"-desc").textContent = b ? `${SOLO[b]}: ${c.short[b]}.` : "Choose a band.";
     const m = mark(c.id); $(c.id+"-score").textContent = b ? `${m}/10` : ""; });
 
