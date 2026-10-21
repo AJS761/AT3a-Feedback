@@ -221,6 +221,14 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
       </section>
       </div>
 
+      <section class="card access" id="overviewCard">
+        <h2>Overview alignment</h2>
+        <label class="check"><input type="checkbox" id="ovissue"> <span><b>The overview has significant alignment issues</b><br><span class="desc">Adds an "Overview alignment" paragraph before Criterion 1. It doesn't change any marks: issues like these usually place Criterion 1 in Pre-structural (2&ndash;0) or the bottom of Uni-structural (5&ndash;3).</span></span></label>
+        <div class="extra" data-show="ovissue"><span class="q">What's wrong with it? (pick any)</span>
+          <div class="chips" data-group="ovissues"></div>
+          <input type="text" id="ovdetail" placeholder="Details, as a full sentence (optional), e.g. The outcome listed is from the Science syllabus, not Geography."></div>
+      </section>
+
       <div id="criteria" style="display:flex;flex-direction:column;gap:16px"></div>
 
       <section class="card">
@@ -364,6 +372,17 @@ $("ov").innerHTML = [["top","Top"],["middle","Middle"],["low","Low"],["fail","Di
   `<input type="radio" name="ov" id="ov-${v}" value="${v}"><label for="ov-${v}"><span style="font-size:.88rem;color:inherit;font-weight:600">${t}</span></label>`).join("");
 document.querySelector('[data-group="improve"]').innerHTML = chipsHtml("improve", IMPROVE.map(x=>x[1]));
 
+/* Overview alignment issues: [wording used in the comment, short label shown to tutors] */
+const OV_ISSUES = [
+  [`the stage selected is not ${S.stage || "Stage 4"}`, "Wrong stage selected"],
+  ["the outcome listed is from a syllabus that is not relevant to the chosen KLA", "Outcome from an irrelevant syllabus"],
+  ["the outcome is from a superseded version of the syllabus", "Outcome from an old syllabus"],
+  ["the outcome or content point could not be found in the syllabus and appears to be made up", "Outcome or content point made up"],
+  ["the overview is incomplete, as it does not name the topic, outcome and content point", "Overview incomplete"],
+  ["the outcome and content point do not match each other", "Outcome and content point don't match"]
+];
+document.querySelector('[data-group="ovissues"]').innerHTML = chipsHtml("ovissues", OV_ISSUES.map(x=>x[0]), OV_ISSUES.map(x=>x[1]));
+
 /* ---------- Helpers ---------- */
 const val = id => ($(id).value || "").trim();
 const band = k => (document.querySelector(`input[name="${k}"]:checked`)||{}).value || "";
@@ -457,6 +476,14 @@ function compose(){
     : `You have used ${tech}, which is ${rating ? an(rating)+" "+rating : "a "+GAP("suitability")} ${tt} for this chosen ${ls}.`;
   blocks.push({text:open});
 
+  if ($("ovissue").checked) {
+    let t = `Your overview has significant alignment issues: ${or(list(picks("ovissues")),"overview issues")}.`;
+    const d = val("ovdetail");
+    if (d) t += " " + d.replace(/([^.!?])$/, "$1.");
+    t += ` The overview is what shows how your resource aligns to the syllabus, so make sure the stage, outcome and content point are taken directly from the current ${kla} ${STAGE} Syllabus and that they belong together.`;
+    blocks.push({head:"Overview alignment", text:t});
+  }
+
   const fns = {c1:(b,m)=>c1Text(b,m,kla), c2:(b,m)=>c2Text(b,m,tech), c3:(b,m)=>c3Text(b,m)};
   CRIT.forEach((c,i) => {
     const b = band(c.id), m = marks[i];
@@ -497,8 +524,10 @@ function render(){
   const noaccess = $("noaccess").checked;
   $("accessCard").classList.toggle("on", noaccess);
   document.querySelectorAll(".crit").forEach(el => el.hidden = noaccess);
+  $("overviewCard").hidden = noaccess;
+  $("overviewCard").classList.toggle("on", $("ovissue").checked);
   document.querySelectorAll("[data-show]").forEach(el => {
-    el.hidden = !el.dataset.show.split(" ").some(t => { if (t==="noaccess") return noaccess; const [k,v] = t.split(":"); return band(k) === v; });
+    el.hidden = !el.dataset.show.split(" ").some(t => { if (t==="noaccess") return noaccess; if (t==="ovissue") return $("ovissue").checked; const [k,v] = t.split(":"); return band(k) === v; });
   });
   CRIT.forEach(c => { const b = band(c.id); $(c.id+"-desc").textContent = b ? `${SOLO[b]}: ${c.short[b]}.` : "Choose a band.";
     const m = mark(c.id); $(c.id+"-score").textContent = b ? `${m}/10` : ""; });
