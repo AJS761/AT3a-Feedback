@@ -234,6 +234,11 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
       </section>
 
       <section class="card">
+        <h2>Late submission</h2>
+        <label class="check"><input type="checkbox" id="late"> <span><b>The submission was late</b></span></label>
+      </section>
+
+      <section class="card">
         <h2>Sign-off</h2>
         <div class="fields">
           <label class="f">Your name <small class="hint">(type in the box)</small><input type="text" id="tutor" placeholder="e.g. Abbie Smith"></label>
@@ -454,6 +459,7 @@ function compose(){
 
   if (noaccess) {
     blocks.push({text:`Unfortunately, your resource could not be accessed because ${val("accessReason")}.${$("contacted").checked ? " You were emailed and asked to correct this issue, but no response was received in the timeframe provided." : ""} It was an important part of the task for the resource to be submitted through ${LMS} in a form the marker can open, without needing to create an account, sign up or log in. As a result, it could not be marked against the rubric and has been placed in the Pre-structural band for each criterion. I would encourage you to read the instructions thoroughly and, if you are ever unsure, reach out to your tutor for clarification.`});
+    addLate(blocks);
     return {blocks, total:0, marks};
   }
 
@@ -511,7 +517,13 @@ function compose(){
     fail: () => `Unfortunately, due to ${or(val("failReason"),"reason")}, your resource didn't meet the standards set out in the rubric. I would encourage you to read the instructions thoroughly and, if you are ever unsure, reach out to your tutor for clarification.`
   };
   blocks.push({text: ov ? OV[ov]() : GAP("overall comment")});
+  addLate(blocks);
   return {blocks, total, marks};
+}
+
+// late submission note, added at the end of the comment
+function addLate(blocks){
+  if ($("late").checked) blocks.push({text:`Please note that your submission was late, so a late penalty has been applied automatically by ${LMS}. This penalty is calculated from your submission time and is in accordance with university policy.`});
 }
 
 // render
@@ -552,7 +564,7 @@ function render(){
   const tutor = or(val("tutor"),"tutor name"), so = val("signoff");
   const signLines = so ? [so + ",", tutor] : [tutor];
   const toHtml = s => esc(s).replace(/\u0000(.*?)\u0001/g, (_,g) => `<span class="gap">[${g}]</span>`).replace(/\u0002(.*?)\u0003/g, (_,g) => `<span class="autotext">${g}</span>`);
-  const totalLine = heads && total!==null ? [`Total: ${total}/30`] : [];
+  const totalLine = heads && total!==null ? [`Total: ${total}/30${$("late").checked ? " (before the late penalty)" : ""}`] : [];
 
   let html, txt;
   if (one) {
