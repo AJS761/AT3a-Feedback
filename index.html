@@ -523,7 +523,7 @@ function compose(){
 
 // late submission note, added at the end of the comment
 function addLate(blocks){
-  if ($("late").checked) blocks.push({text:`Please note that your submission was late, so a late penalty has been applied automatically by ${LMS}. This penalty is calculated from your submission time and is in accordance with university policy.`});
+  if ($("late").checked) blocks.push({text:`Please note that your submission was late, so a late penalty has been applied automatically by ${LMS}. This penalty is calculated from your submission time in accordance with university policy, and has been applied on a per-hour rather than a per-day basis to minimise its impact.`});
 }
 
 // render
