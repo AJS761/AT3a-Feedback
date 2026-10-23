@@ -258,6 +258,7 @@ button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
       <div class="out-foot">
         <button type="button" class="primary" id="copy">Copy comment</button>
         <button type="button" id="next">New student</button>
+        <button type="button" id="concise" aria-pressed="false">Concise version</button>
         <div class="opts">
           <label><input type="checkbox" id="headings" checked> Criterion headings and marks</label>
           <label><input type="checkbox" id="samr" checked> Refer to SAMR</label>
@@ -526,6 +527,59 @@ function addLate(blocks){
   if ($("late").checked) blocks.push({text:`Please note that your submission was late, so a late penalty has been applied automatically by ${LMS}. This penalty is calculated from your submission time in accordance with university policy, and has been applied on a per-hour rather than a per-day basis to minimise its impact.`});
 }
 
+// concise version: marks, what worked well, next steps, one-line overall
+let concise = false;
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+const SHORT = {
+  c1: {
+    good: {"10":"Your use of design principles is expert and could be transferred to other content", "9-8":"Your design principles clearly shape what learners do", "7-6":"Several design principles connect well to the content", "5-3":"You have used a design principle that suits the content"},
+    next: {"9-8": k => `set the resource up so the same approach could be used with other ${k} content`, "7-6": () => "carry the design principles through the whole activity", "5-3": () => "use more design principles, and check your overview names the topic, outcome and content point", "2-0": k => `clearly apply digital design principles to ${k} syllabus content`} },
+  c2: {
+    good: {"10":"The technology creates learning that would not otherwise be possible", "9-8":"The technology changes what learners actually do", "7-6":"Useful digital features support learning", "5-3":"The resource works reliably as a digital activity"},
+    next: {"9-8": () => "use the technology to create opportunities that would not otherwise be possible, such as collaboration or an authentic audience", "7-6": () => "use the technology to change what learners do, rather than replicating a paper task", "5-3": () => "add features such as immediate feedback or interactivity that improve learning", "2-0": () => "make sure the technology is meaningful to the learning"} },
+  c3: {
+    good: {"10":"The design is carefully pitched to your learners, with cognitive load well managed", "9-8":"The design is clear and accessible, so learners can navigate it independently", "7-6":"Several design strategies support understanding", "5-3":"The resource opens and works"},
+    next: {"9-8": () => "make more deliberate choices about what to include and what to leave out", "7-6": () => "apply your design strategies more consistently across the resource", "5-3": () => "use chunking, headings, visuals and clear prompts to remove obstacles for learners", "2-0": () => "make sure the design, content and language suit your learners"} }
+};
+function composeConcise(){
+  const noaccess = $("noaccess").checked, late = $("late").checked;
+  const name = or(val("name"),"name"), kla = or(val("kla"),"KLA");
+  const marks = CRIT.map(c => noaccess ? 0 : (band(c.id) ? mark(c.id) : null));
+  const total = marks.every(m => m!==null) ? marks.reduce((a,b)=>a+b,0) : null;
+  const lateText = `Please note that your submission was late, so ${LMS} has applied a late penalty. It is calculated per hour rather than per day to minimise its impact, in line with university policy.`;
+  const blocks = [{text:`Hi ${name}, thank you for your submission. Here is a short summary of your feedback.`}];
+
+  if (noaccess) {
+    blocks.push({text:`Unfortunately, your resource couldn't be opened because ${val("accessReason")}.${$("contacted").checked ? " You were emailed and asked to fix this, but no response was received in the timeframe provided." : ""} As a result, it couldn't be marked and has received 0 for each criterion. Please read the instructions carefully and contact your tutor if you are unsure.`});
+    if (late) blocks.push({text:lateText});
+    return {blocks, total:0, marks};
+  }
+
+  if ($("headings").checked) blocks.push({text:`Marks: ${CRIT.map((c,i) => `${c.tag} ${marks[i]===null?"–":marks[i]}/10`).join(", ")}${total!==null ? `, Total ${total}/30${late ? " (before the late penalty)" : ""}` : ""}`});
+
+  const good = [], next = [], ovIssue = $("ovissue").checked;
+  if (ovIssue) next.push(`Fix the alignment issues in your overview (${or(list(picks("ovissues")),"overview issues")}). A resource can't be appropriate for learners if it isn't aligned to the syllabus, so do this first.`);
+  CRIT.forEach(c => {
+    const b = band(c.id), sh = SHORT[c.id];
+    if (!b) { next.push(GAP(c.tag.toLowerCase())); return; }
+    if (sh.good[b]) good.push(sh.good[b] + ".");
+    if (sh.next[b]) next.push(cap(sh.next[b](kla)) + ".");
+  });
+  if (good.length) blocks.push({text:"What worked well:\n" + good.map(x => "- " + x).join("\n")});
+  if (next.length) blocks.push({text:"Next steps:\n" + next.map(x => "- " + x).join("\n")});
+
+  const ov = band("ov");
+  const OVS = {
+    top: ovIssue ? `Overall, once your overview is fixed, this will be a great example of how ICT resources can be used in ${kla}. Well done on the design!` : `Overall, this is a great example of how ICT resources can be used in ${kla}. Well done!`,
+    middle: `Overall, you have done a good job, and your resource is built on some good foundational ideas.`,
+    low: `Overall, your resource has some good foundational ideas, and with further refinement it could be a usable resource in the classroom.`,
+    fail: `${ovIssue ? "Overall" : "Unfortunately"}, due to ${or(val("failReason"),"reason")}, your resource didn't meet the standards in the rubric. Please read the instructions carefully and contact your tutor if you are unsure.`
+  };
+  blocks.push({text: ov ? OVS[ov] : GAP("overall comment")});
+  if (late) blocks.push({text:lateText});
+  return {blocks, total, marks};
+}
+
 // render
 let plain = "";
 function syncMarks(){
@@ -557,21 +611,23 @@ function render(){
   CRIT.forEach(c => { const b = band(c.id); $(c.id+"-desc").textContent = b ? `${SOLO[b]}: ${c.short[b]}.` : "Choose a band.";
     const m = mark(c.id); $(c.id+"-score").textContent = b ? `${m}/10` : ""; });
 
-  const {blocks, total, marks} = compose();
+  const {blocks, total, marks} = concise ? composeConcise() : compose();
   suggest(marks);
-  const heads = $("headings").checked, one = $("onepara").checked && !heads;
-  $("onepara").disabled = heads;
+  const heads = $("headings").checked, one = !concise && $("onepara").checked && !heads;
+  $("onepara").disabled = heads || concise;
+  $("concise").textContent = concise ? "Full version" : "Concise version";
+  $("concise").setAttribute("aria-pressed", String(concise));
   const tutor = or(val("tutor"),"tutor name"), so = val("signoff");
   const signLines = so ? [so + ",", tutor] : [tutor];
   const toHtml = s => esc(s).replace(/\u0000(.*?)\u0001/g, (_,g) => `<span class="gap">[${g}]</span>`).replace(/\u0002(.*?)\u0003/g, (_,g) => `<span class="autotext">${g}</span>`);
-  const totalLine = heads && total!==null ? [`Total: ${total}/30${$("late").checked ? " (before the late penalty)" : ""}`] : [];
+  const totalLine = heads && total!==null && !concise ? [`Total: ${total}/30${$("late").checked ? " (before the late penalty)" : ""}`] : [];
 
   let html, txt;
   if (one) {
     html = `<p>${blocks.map(b=>toHtml(b.text)).join(" ")}</p>`;
     txt = blocks.map(b=>b.text).join(" ");
   } else {
-    html = blocks.map(b => `<p>${heads && b.head ? `<span class="h">${toHtml(b.head)}</span>` : ""}${toHtml(b.text)}</p>`).join("");
+    html = blocks.map(b => `<p>${heads && b.head ? `<span class="h">${toHtml(b.head)}</span>` : ""}${toHtml(b.text).replace(/\n/g,"<br>")}</p>`).join("");
     txt = blocks.map(b => (heads && b.head ? b.head + "\n" : "") + b.text).join("\n\n");
   }
   if (totalLine.length) { html += `<p><b>${totalLine[0]}</b></p>`; txt += "\n\n" + totalLine[0]; }
@@ -606,7 +662,10 @@ $("copy").addEventListener("click", () => {
   try { navigator.clipboard.writeText(text).then(done, fallback); } catch(e) { fallback(); }
 });
 
+$("concise").addEventListener("click", () => { concise = !concise; render(); });
+
 $("next").addEventListener("click", () => {
+  concise = false;
   const keep = ["kla","tutor","signoff"].map(id => [id, $(id).value]);
   const keepChk = ["headings","samr","onepara"].map(id => [id, $(id).checked]);
   $("f").reset();
