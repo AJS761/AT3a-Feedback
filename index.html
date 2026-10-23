@@ -533,7 +533,7 @@ const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
 const SHORT = {
   c1: {
     good: {"10":"Your use of design principles is expert and could be transferred to other content", "9-8":"Your design principles clearly shape what learners do", "7-6":"Several design principles connect well to the content", "5-3":"You have used a design principle that suits the content"},
-    next: {"9-8": k => `set the resource up so the same approach could be used with other ${k} content`, "7-6": () => "carry the design principles through the whole activity", "5-3": () => "use more design principles, and check your overview names the topic, outcome and content point", "2-0": k => `clearly apply digital design principles to ${k} syllabus content`} },
+    next: {"9-8": k => `set your resource up so the same approach could be used with other ${k} content`, "7-6": () => "carry the design principles through the whole activity", "5-3": () => "use more design principles, and check your overview names the topic, outcome and content point", "2-0": k => `clearly apply digital design principles to ${k} syllabus content`} },
   c2: {
     good: {"10":"The technology creates learning that would not otherwise be possible", "9-8":"The technology changes what learners actually do", "7-6":"Useful digital features support learning", "5-3":"The resource works reliably as a digital activity"},
     next: {"9-8": () => "use the technology to create opportunities that would not otherwise be possible, such as collaboration or an authentic audience", "7-6": () => "use the technology to change what learners do, rather than replicating a paper task", "5-3": () => "add features such as immediate feedback or interactivity that improve learning", "2-0": () => "make sure the technology is meaningful to the learning"} },
@@ -555,18 +555,25 @@ function composeConcise(){
     return {blocks, total:0, marks};
   }
 
-  if ($("headings").checked) blocks.push({text:`Marks: ${CRIT.map((c,i) => `${c.tag} ${marks[i]===null?"–":marks[i]}/10`).join(", ")}${total!==null ? `, Total ${total}/30${late ? " (before the late penalty)" : ""}` : ""}`});
+  if ($("headings").checked) blocks.push({text:`You received ${list(CRIT.map((c,i) => `${marks[i]===null?"–":marks[i]}/10 for ${c.tag}`))}${total!==null ? `, for a total of ${total}/30${late ? " before the late penalty" : ""}` : ""}.`});
 
+  // strengths and next steps, joined into sentences
+  const low1 = t => t.charAt(0).toLowerCase() + t.slice(1);
   const good = [], next = [], ovIssue = $("ovissue").checked;
-  if (ovIssue) next.push(`Fix the alignment issues in your overview (${or(list(picks("ovissues")),"overview issues")}). A resource can't be appropriate for learners if it isn't aligned to the syllabus, so do this first.`);
   CRIT.forEach(c => {
     const b = band(c.id), sh = SHORT[c.id];
     if (!b) { next.push(GAP(c.tag.toLowerCase())); return; }
-    if (sh.good[b]) good.push(sh.good[b] + ".");
-    if (sh.next[b]) next.push(cap(sh.next[b](kla)) + ".");
+    if (sh.good[b]) good.push(sh.good[b]);
+    if (sh.next[b]) next.push(sh.next[b](kla));
   });
-  if (good.length) blocks.push({text:"What worked well:\n" + good.map(x => "- " + x).join("\n")});
-  if (next.length) blocks.push({text:"Next steps:\n" + next.map(x => "- " + x).join("\n")});
+  if (good.length) blocks.push({text: cap(list(good.map((g,i) => i ? low1(g) : g))) + "."});
+  const steps = [];
+  if (ovIssue) steps.push(`The most important next step is to fix the alignment issues in your overview, as ${or(list(picks("ovissues")),"overview issues")}. A resource can't be appropriate for learners if it isn't aligned to the syllabus.`);
+  next.forEach((n,i) => {
+    const lead = i===0 ? (ovIssue ? "Beyond that, " : "To take it further, ") : (i===next.length-1 && i>1 ? "Finally, " : "You could also ");
+    steps.push(lead + n + ".");
+  });
+  if (steps.length) blocks.push({text: steps.join(" ")});
 
   const ov = band("ov");
   const OVS = {
